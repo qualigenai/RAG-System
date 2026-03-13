@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG System - Architecture Diagram</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #0f1423;
+    --border: #1e3a5f;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --accent-green: #10b981;
+    --accent-violet: #8b5cf6;
+    --accent-orange: #f97316;
+    --accent-pink: #ec4899;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 70px;
+    animation: fadeDown 0.8s ease forwards;
+  }
+  
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 11px;
+    color: var(--accent-cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-cyan); animation: pulse 1.5s infinite; }
+  
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e2e8f0 0%, #06b6d4 50%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  
+  .subtitle { 
+    color: var(--muted); 
+    font-size: 13px; 
+    letter-spacing: 0.05em; 
+    line-height: 1.6;
+  }
+  
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  
+  .section-label {
+    width: 100%; max-width: 1000px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 12px; margin-top: 8px;
+  }
+  
+  .section-label span {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap;
+  }
+  
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  
+  .connector {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 8px 0;
+  }
+  
+  .arrow-line {
+    width: 2px; height: 32px;
+    background: linear-gradient(to bottom, var(--accent-blue), transparent);
+    position: relative;
+  }
+  
+  .arrow-line.down::after {
+    content: '';
+    position: absolute; bottom: -6px; left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--accent-blue);
+  }
+  
+  .arrow-label {
+    font-size: 11px; color: var(--accent-blue);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin: 4px 0; opacity: 0.7;
+  }
+  
+  .node {
+    width: 100%; max-width: 1000px;
+    border-radius: 18px; border: 1px solid;
+    padding: 28px 32px; position: relative; overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.6s ease forwards; opacity: 0;
+  }
+  
+  .node:hover { transform: translateY(-4px); }
+  
+  .node-input {
+    border-color: rgba(59,130,246,0.4);
+    background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, var(--surface) 100%);
+    box-shadow: 0 0 50px rgba(59,130,246,0.15);
+    animation-delay: 0.1s;
+  }
+  
+  .node-processor {
+    border-color: rgba(139,92,246,0.4);
+    background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, var(--surface) 100%);
+    box-shadow: 0 0 50px rgba(139,92,246,0.15);
+    animation-delay: 0.2s;
+  }
+  
+  .node-retrieval {
+    border-color: rgba(6,182,212,0.4);
+    background: linear-gradient(135deg, rgba(6,182,212,0.12) 0%, var(--surface) 100%);
+    box-shadow: 0 0 50px rgba(6,182,212,0.15);
+    animation-delay: 0.3s;
+  }
+  
+  .node-storage {
+    border-color: rgba(16,185,129,0.4);
+    background: linear-gradient(135deg, rgba(16,185,129,0.12) 0%, var(--surface) 100%);
+    box-shadow: 0 0 50px rgba(16,185,129,0.15);
+    animation-delay: 0.4s;
+  }
+  
+  .node-output {
+    border-color: rgba(244,63,94,0.4);
+    background: linear-gradient(135deg, rgba(244,63,94,0.12) 0%, var(--surface) 100%);
+    box-shadow: 0 0 50px rgba(244,63,94,0.15);
+    animation-delay: 0.5s;
+  }
+  
+  .node-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  
+  .node-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  
+  .components-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  
+  .component-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  
+  .comp-icon {
+    font-size: 20px;
+    min-width: 24px;
+  }
+  
+  .comp-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .comp-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .comp-detail {
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.8;
+  }
+  
+  .hybrid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  
+  .hybrid-card {
+    border-radius: 14px;
+    border: 1px solid;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hybrid-vector {
+    border-color: rgba(139,92,246,0.5);
+    background: linear-gradient(145deg, rgba(139,92,246,0.08) 0%, var(--surface) 100%);
+  }
+  
+  .hybrid-bm25 {
+    border-color: rgba(249,115,22,0.5);
+    background: linear-gradient(145deg, rgba(249,115,22,0.08) 0%, var(--surface) 100%);
+  }
+  
+  .hybrid-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .hybrid-list {
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  
+  .hybrid-list li {
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  
+  .metric-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  
+  .metric {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .metric-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    font-family: 'Syne', sans-serif;
+  }
+  
+  .metric-label {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  
+  .tag {
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    white-space: nowrap;
+    opacity: 0.8;
+  }
+  
+  .legend {
+    width: 100%; max-width: 1000px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+    padding: 32px;
+    margin-top: 60px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(15, 20, 35, 0.4);
+    animation: fadeUp 0.6s ease 0.6s forwards; opacity: 0;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .ldot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .legend-item span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  
+  @keyframes fadeDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .performance-banner {
+    width: 100%; max-width: 1000px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+    animation: fadeUp 0.6s ease 0.05s forwards; opacity: 0;
+  }
+  
+  .perf-card {
+    background: linear-gradient(135deg, rgba(6,182,212,0.08) 0%, var(--surface) 100%);
+    border: 1px solid rgba(6,182,212,0.3);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .perf-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  
+  .perf-stat {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    font-family: 'Syne', sans-serif;
+    margin-bottom: 4px;
+  }
+  
+  .perf-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="flow">
+    
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-badge">
+        <div class="dot"></div>
+        Advanced AI Architecture
+      </div>
+      <h1>RAG System</h1>
+      <div class="subtitle">Retrieval Augmented Generation — End-to-End Architecture</div>
+    </div>
+    
+    <!-- PERFORMANCE BANNER -->
+    <div class="performance-banner">
+      <div class="perf-card">
+        <div class="perf-icon">⚡</div>
+        <div class="perf-stat">< 500ms</div>
+        <div class="perf-label">Query Response</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-icon">📚</div>
+        <div class="perf-stat">1000+</div>
+        <div class="perf-label">Document Capacity</div>
+      </div>
+      <div class="perf-card">
+        <div class="perf-icon">🎯</div>
+        <div class="perf-stat">85-95%</div>
+        <div class="perf-label">Accuracy</div>
+      </div>
+    </div>
+    
+    <!-- INPUT LAYER -->
+    <div class="section-label"><span>1. Input & Document Upload</span></div>
+    <div class="node node-input">
+      <div class="node-title">📤 Document Ingestion</div>
+      <div class="node-desc">Accept and prepare documents for processing</div>
+      <div class="components-grid">
+        <div class="component-item">
+          <div class="comp-icon">📄</div>
+          <div class="comp-text">
+            <div class="comp-name">Text Files (TXT)</div>
+            <div class="comp-detail">Plain text documents</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📕</div>
+          <div class="comp-text">
+            <div class="comp-name">PDF Files</div>
+            <div class="comp-detail">Extracted via PyPDF</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">🔄</div>
+          <div class="comp-text">
+            <div class="comp-name">Real-time Indexing</div>
+            <div class="comp-detail">Immediate availability</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">✅</div>
+          <div class="comp-text">
+            <div class="comp-name">Validation</div>
+            <div class="comp-detail">Content verification</div>
+          </div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">File Upload API</span>
+        <span class="tag">PyPDF</span>
+        <span class="tag">Content Validation</span>
+        <span class="tag">Real-time Processing</span>
+      </div>
+    </div>
+    
+    <div class="connector">
+      <div class="arrow-line down"></div>
+      <div class="arrow-label">processes</div>
+      <div class="arrow-line"></div>
+    </div>
+    
+    <!-- PROCESSING LAYER -->
+    <div class="section-label"><span>2. Document Processing & Chunking</span></div>
+    <div class="node node-processor">
+      <div class="node-title">🔄 Intelligent Text Processing</div>
+      <div class="node-desc">Split documents into semantic chunks with overlap for context preservation</div>
+      <div class="components-grid">
+        <div class="component-item">
+          <div class="comp-icon">✂️</div>
+          <div class="comp-text">
+            <div class="comp-name">Smart Chunking</div>
+            <div class="comp-detail">500 char chunks, 50 overlap</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📊</div>
+          <div class="comp-text">
+            <div class="comp-name">Text Splitting</div>
+            <div class="comp-detail">Recursive character split</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">🧹</div>
+          <div class="comp-text">
+            <div class="comp-name">Normalization</div>
+            <div class="comp-detail">Clean & standardize text</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📑</div>
+          <div class="comp-text">
+            <div class="comp-name">Metadata Preservation</div>
+            <div class="comp-detail">Track source & position</div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-box">
+        <div class="metric">
+          <div class="metric-value">500</div>
+          <div class="metric-label">Chunk Size (chars)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">50</div>
+          <div class="metric-label">Overlap (chars)</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">LangChain</span>
+        <span class="tag">RecursiveCharacterSplitter</span>
+        <span class="tag">Context Preservation</span>
+      </div>
+    </div>
+    
+    <div class="connector">
+      <div class="arrow-line down"></div>
+      <div class="arrow-label">generates embeddings for</div>
+      <div class="arrow-line"></div>
+    </div>
+    
+    <!-- EMBEDDING LAYER -->
+    <div class="section-label"><span>3. Embedding Generation</span></div>
+    <div class="node node-processor" style="border-color: rgba(236,72,153,0.4); background: linear-gradient(135deg, rgba(236,72,153,0.12) 0%, var(--surface) 100%); box-shadow: 0 0 50px rgba(236,72,153,0.15);">
+      <div class="node-title">🧠 Semantic Embeddings</div>
+      <div class="node-desc">Convert text to dense numerical vectors for semantic similarity</div>
+      <div class="components-grid">
+        <div class="component-item">
+          <div class="comp-icon">🤖</div>
+          <div class="comp-text">
+            <div class="comp-name">sentence-transformers</div>
+            <div class="comp-detail">all-MiniLM-L6-v2 model</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📊</div>
+          <div class="comp-text">
+            <div class="comp-name">Vector Dimension</div>
+            <div class="comp-detail">384-dimensional</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">⚡</div>
+          <div class="comp-text">
+            <div class="comp-name">Batch Processing</div>
+            <div class="comp-detail">100-200 texts/sec</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">💾</div>
+          <div class="comp-text">
+            <div class="comp-name">Model Caching</div>
+            <div class="comp-detail">130MB local cache</div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-box">
+        <div class="metric">
+          <div class="metric-value">384</div>
+          <div class="metric-label">Dimensions</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">0.5s</div>
+          <div class="metric-label">Per Document</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">sentence-transformers</span>
+        <span class="tag">all-MiniLM-L6-v2</span>
+        <span class="tag">384-dim vectors</span>
+        <span class="tag">CPU friendly</span>
+      </div>
+    </div>
+    
+    <div class="connector">
+      <div class="arrow-line down"></div>
+      <div class="arrow-label">stores in</div>
+      <div class="arrow-line"></div>
+    </div>
+    
+    <!-- STORAGE LAYER -->
+    <div class="section-label"><span>4. Storage & Indexing</span></div>
+    <div class="node node-storage">
+      <div class="node-title">💾 Vector & Index Storage</div>
+      <div class="node-desc">Dual-indexed storage for fast retrieval with both semantic and keyword search</div>
+      <div class="components-grid">
+        <div class="component-item">
+          <div class="comp-icon">📦</div>
+          <div class="comp-text">
+            <div class="comp-name">Vector Store</div>
+            <div class="comp-detail">In-memory cosine similarity</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">🔍</div>
+          <div class="comp-text">
+            <div class="comp-name">BM25 Index</div>
+            <div class="comp-detail">Keyword matching ranking</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📝</div>
+          <div class="comp-text">
+            <div class="comp-name">Metadata Store</div>
+            <div class="comp-detail">Source & position tracking</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">⚙️</div>
+          <div class="comp-text">
+            <div class="comp-name">Collection Mgmt</div>
+            <div class="comp-detail">Clear & update operations</div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-box">
+        <div class="metric">
+          <div class="metric-value">~300MB</div>
+          <div class="metric-label">Per 1K Docs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">Instant</div>
+          <div class="metric-label">Lookup Time</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">In-memory (v1)</span>
+        <span class="tag">Numpy Arrays</span>
+        <span class="tag">Python Dict</span>
+        <span class="tag">Scalable to Qdrant</span>
+      </div>
+    </div>
+    
+    <div class="connector">
+      <div class="arrow-line down"></div>
+      <div class="arrow-label">enables hybrid search with</div>
+      <div class="arrow-line"></div>
+    </div>
+    
+    <!-- RETRIEVAL LAYER -->
+    <div class="section-label"><span>5. Hybrid Retrieval Engine</span></div>
+    <div class="node node-retrieval">
+      <div class="node-title">🔎 Intelligent Hybrid Search</div>
+      <div class="node-desc">Combine vector similarity and keyword matching for optimal recall and precision</div>
+      
+      <div class="hybrid-grid">
+        <div class="hybrid-card hybrid-vector">
+          <div class="hybrid-title">
+            <span>🧭</span> Vector Search (70%)
+          </div>
+          <ul class="hybrid-list">
+            <li>✓ Query embedding generation</li>
+            <li>✓ Cosine similarity calculation</li>
+            <li>✓ Semantic understanding</li>
+            <li>✓ Top-K ranking</li>
+            <li>✓ Context-aware matching</li>
+          </ul>
+        </div>
+        
+        <div class="hybrid-card hybrid-bm25">
+          <div class="hybrid-title">
+            <span>📊</span> BM25 Search (30%)
+          </div>
+          <ul class="hybrid-list">
+            <li>✓ Keyword matching</li>
+            <li>✓ Term frequency ranking</li>
+            <li>✓ Inverse document freq</li>
+            <li>✓ Exact match recall</li>
+            <li>✓ Query expansion support</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div style="margin-top: 14px; padding: 12px; background: rgba(255,255,255,0.04); border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+        <div style="font-size: 11px; color: var(--text); font-weight: 600; margin-bottom: 6px;">Score Combination:</div>
+        <div style="font-size: 10px; color: var(--muted); font-family: monospace;">
+          Final Score = (Vector_Score × 0.7) + (BM25_Score × 0.3)
+        </div>
+      </div>
+      
+      <div class="metric-box">
+        <div class="metric">
+          <div class="metric-value">< 15ms</div>
+          <div class="metric-label">Search Latency</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">High</div>
+          <div class="metric-label">Precision & Recall</div>
+        </div>
+      </div>
+      
+      <div class="tags">
+        <span class="tag">Hybrid Weighting</span>
+        <span class="tag">Dual Ranking</span>
+        <span class="tag">Score Fusion</span>
+        <span class="tag">Top-K Results</span>
+      </div>
+    </div>
+    
+    <div class="connector">
+      <div class="arrow-line down"></div>
+      <div class="arrow-label">returns ranked results to</div>
+      <div class="arrow-line"></div>
+    </div>
+    
+    <!-- OUTPUT LAYER -->
+    <div class="section-label"><span>6. User Interface & Output</span></div>
+    <div class="node node-output">
+      <div class="node-title">🎨 Frontend & API Layer</div>
+      <div class="node-desc">User-friendly interface and REST API for integration</div>
+      <div class="components-grid">
+        <div class="component-item">
+          <div class="comp-icon">💻</div>
+          <div class="comp-text">
+            <div class="comp-name">Streamlit Web UI</div>
+            <div class="comp-detail">Interactive chat interface</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">🔌</div>
+          <div class="comp-text">
+            <div class="comp-name">FastAPI Backend</div>
+            <div class="comp-detail">REST API endpoints</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📡</div>
+          <div class="comp-text">
+            <div class="comp-name">HTTP Server</div>
+            <div class="comp-detail">Uvicorn ASGI</div>
+          </div>
+        </div>
+        <div class="component-item">
+          <div class="comp-icon">📊</div>
+          <div class="comp-text">
+            <div class="comp-name">Analytics</div>
+            <div class="comp-detail">Usage statistics</div>
+          </div>
+        </div>
+      </div>
+      <div class="metric-box">
+        <div class="metric">
+          <div class="metric-value">8501</div>
+          <div class="metric-label">Streamlit Port</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">8000</div>
+          <div class="metric-label">API Port</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">Streamlit</span>
+        <span class="tag">FastAPI</span>
+        <span class="tag">Uvicorn</span>
+        <span class="tag">Pydantic Validation</span>
+      </div>
+    </div>
+    
+    <!-- LEGEND -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="ldot" style="background: var(--accent-blue);"></div>
+        <span>Input & Upload</span>
+      </div>
+      <div class="legend-item">
+        <div class="ldot" style="background: var(--accent-violet);"></div>
+        <span>Processing</span>
+      </div>
+      <div class="legend-item">
+        <div class="ldot" style="background: var(--accent-cyan);"></div>
+        <span>Retrieval</span>
+      </div>
+      <div class="legend-item">
+        <div class="ldot" style="background: var(--accent-green);"></div>
+        <span>Storage</span>
+      </div>
+      <div class="legend-item">
+        <div class="ldot" style="background: #ec4899;"></div>
+        <span>Embedding</span>
+      </div>
+      <div class="legend-item">
+        <div class="ldot" style="background: var(--accent-pink);"></div>
+        <span>Output</span>
+      </div>
+    </div>
+    
+  </div>
+</div>
+</body>
+</html>
