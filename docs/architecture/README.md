@@ -1,3 +1,10 @@
+ ## 🎨 Interactive Architecture Diagrams
+
+- [Vertical Flow Architecture](https://qualigenai.github.io/RAG-System/docs/architecture/RAG_Architecture_Interactive.html)
+- [Data Flow Pipeline](https://qualigenai.github.io/RAG-System/docs/architecture/RAG_Architecture_DataFlow.html)
+
+*(Best viewed in full screen)*
+
 # System Architecture
 
 This directory contains interactive architecture diagrams for the RAG System.

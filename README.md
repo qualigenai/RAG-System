@@ -1,3 +1,38 @@
+ ## 🎨 Interactive Architecture Diagrams
+
+- [Vertical Flow Architecture](https://qualigenai.github.io/RAG-System/docs/architecture/RAG_Architecture_Interactive.html)
+- [Data Flow Pipeline](https://qualigenai.github.io/RAG-System/docs/architecture/RAG_Architecture_DataFlow.html)
+
+*(Best viewed in full screen)*
+
+## 📊 Architecture
+
+Our RAG system uses a sophisticated multi-layer architecture for optimal performance:
+
+### Quick Overview
+```
+📤 Upload → ✂️ Chunk → 🧠 Embed → 💾 Index → 🔎 Search → 📄 Results
+```
+
+### Detailed Diagrams
+
+We've created interactive architecture diagrams that you can explore:
+
+1. **[Vertical Flow Architecture](docs/architecture/RAG_Architecture_Interactive.html)** - 
+   Complete layer-by-layer breakdown with detailed components
+
+2. **[Data Flow Pipeline](docs/architecture/RAG_Architecture_DataFlow.html)** - 
+   Visual representation of data flow through the system
+
+### System Design
+
+- **Frontend:** Streamlit web interface
+- **Backend:** FastAPI REST API
+- **Core Engine:** Hybrid vector + BM25 search
+- **Embeddings:** sentence-transformers (384-dim)
+- **Storage:** In-memory with scalable options
+
+For detailed architecture documentation, see [Architecture Docs](docs/architecture/README.md)
 \# RAG System - Retrieval Augmented Generation
 
 
