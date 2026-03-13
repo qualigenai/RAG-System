@@ -1,0 +1,15 @@
+Retrieval-Augmented Generation (RAG)
+
+RAG is a technique that combines retrieval and generation.
+It retrieves relevant documents and uses them to generate responses.
+
+Key benefits:
+- Reduces hallucination
+- Provides up-to-date information
+- Allows fact checking
+
+How RAG works:
+1. User asks a question
+2. System retrieves relevant documents
+3. System generates answer based on documents
+4. Answer is returned to user
