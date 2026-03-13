@@ -6,10 +6,10 @@ A complete, production-ready Retrieval Augmented Generation system built from sc
 
 Explore our system architecture with beautiful interactive diagrams:
 
-- **[Vertical Flow Architecture](https://cdn.jsdelivr.net/gh/qualigenai/RAG-System@main/docs/architecture/RAG_Architecture_Interactive.html)** - 
+- **[Vertical Flow Architecture](https://qualigenai.github.io/RAG-System/architecture/RAG_Architecture_Interactive.html)** - 
   Complete 6-layer architecture with detailed component breakdown. Shows Input → Processing → Embedding → Storage → Retrieval → Output
 
-- **[Data Flow Pipeline](https://cdn.jsdelivr.net/gh/qualigenai/RAG-System@main/docs/architecture/RAG_Architecture_DataFlow.html)** - 
+- **[Data Flow Pipeline](https://qualigenai.github.io/RAG-System/architecture/RAG_Architecture_DataFlow.html)** - 
   Visual representation of data flow through the system with document processing and query processing pipelines
 
 *💡 Tip: Open diagrams in full screen (F11) for best viewing experience*
