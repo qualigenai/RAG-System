@@ -8,7 +8,7 @@ cd C:\Users\Rambhupal\rag-system
 I'm giving you the **FINAL SLIM VERSION** to copy:
 ```
 fastapi==0.125.0
-uvicorn==0.41.0
+uvicorn==0.39.0
 python-multipart==0.0.6
 SQLAlchemy==2.0.23
 python-dotenv==1.0.0
