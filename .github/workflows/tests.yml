@@ -28,9 +28,31 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-cov requests locust
 
+    - name: Start backend server
+      run: |
+        # Start backend in background
+        python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
+        echo $! > backend.pid
+        
+        # Wait for backend to start (max 30 seconds)
+        echo "Waiting for backend to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+            echo "✅ Backend is ready!"
+            break
+          fi
+          echo "⏳ Waiting... ($i/30)"
+          sleep 1
+        done
+      continue-on-error: false
+
+    - name: Seed database with test data
+      run: |
+        python seed_database.py || true
+
     - name: Run API tests with pytest
       run: |
-        pytest test_with_data.py -v --tb=short || true
+        pytest test_with_data.py -v --tb=short
 
     - name: Generate test report
       if: always()
@@ -44,11 +66,19 @@ jobs:
         name: test-results-${{ matrix.python-version }}
         path: report.html
 
-    - name: Test Summary
+    - name: Upload backend logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-logs-${{ matrix.python-version }}
+        path: backend.log
+
+    - name: Stop backend
       if: always()
       run: |
-        echo "✅ Tests completed!"
-        echo "📊 Check artifacts for detailed reports"
+        if [ -f backend.pid ]; then
+          kill $(cat backend.pid) || true
+        fi
 
   security-scan:
     runs-on: ubuntu-latest
@@ -94,12 +124,41 @@ jobs:
         pip install -r requirements.txt
         pip install pytest pytest-cov coverage
 
+    - name: Start backend server
+      run: |
+        # Start backend in background
+        python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 > backend.log 2>&1 &
+        echo $! > backend.pid
+        
+        # Wait for backend to start (max 30 seconds)
+        echo "Waiting for backend to start..."
+        for i in {1..30}; do
+          if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+            echo "✅ Backend is ready!"
+            break
+          fi
+          echo "⏳ Waiting... ($i/30)"
+          sleep 1
+        done
+      continue-on-error: false
+
+    - name: Seed database with test data
+      run: |
+        python seed_database.py || true
+
     - name: Run coverage
       run: |
-        pytest test_with_data.py --cov=src --cov-report=xml --cov-report=html || true
+        pytest test_with_data.py --cov=src --cov-report=xml --cov-report=html
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v3
       with:
         name: coverage-report
         path: htmlcov/
+
+    - name: Stop backend
+      if: always()
+      run: |
+        if [ -f backend.pid ]; then
+          kill $(cat backend.pid) || true
+        fi
