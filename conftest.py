@@ -48,7 +48,7 @@ def viewer_user():
 def registered_admin(api_base_url, admin_user):
     """Register admin user and return credentials"""
     requests.post(
-        f"{api_base_url}/auth/register",
+        f"{api_base_url}/api/auth/register",
         json=admin_user
     )
     return admin_user
@@ -57,7 +57,7 @@ def registered_admin(api_base_url, admin_user):
 def registered_editor(api_base_url, editor_user):
     """Register editor user and return credentials"""
     requests.post(
-        f"{api_base_url}/auth/register",
+        f"{api_base_url}/api/auth/register",
         json=editor_user
     )
     return editor_user
@@ -66,8 +66,8 @@ def registered_editor(api_base_url, editor_user):
 def admin_token(api_base_url, registered_admin) -> str:
     """Login as admin and get JWT token"""
     response = requests.post(
-        f"{api_base_url}/auth/login",
-        data={
+        f"{api_base_url}/api/auth/login",
+        json={
             "email": registered_admin["email"],
             "password": registered_admin["password"]
         }
@@ -80,8 +80,8 @@ def admin_token(api_base_url, registered_admin) -> str:
 def editor_token(api_base_url, registered_editor) -> str:
     """Login as editor and get JWT token"""
     response = requests.post(
-        f"{api_base_url}/auth/login",
-        data={
+        f"{api_base_url}/api/auth/login",
+        json={
             "email": registered_editor["email"],
             "password": registered_editor["password"]
         }
