@@ -17,7 +17,7 @@ passlib==1.7.4
 bcrypt==4.1.1
 cryptography==46.0.5
 email-validator==2.3.0
-streamlit==1.55.0
+streamlit==1.50.0
 PyPDF2==3.0.1
 openai==2.28.0
 sentence-transformers==5.2.3

@@ -1,4 +1,166 @@
-# Models
-models/
-cache/
-*.cache
+# ==========================================
+# RAG System v1.5 - .gitignore
+# ==========================================
+
+# ==========================================
+# Database (changes with each run)
+# ==========================================
+rag_system.db
+*.db
+*.sqlite
+*.sqlite3
+test.db
+
+# ==========================================
+# Test Reports (generated)
+# ==========================================
+test_reports/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.html
+
+# ==========================================
+# Data & Uploads (runtime)
+# ==========================================
+data/
+uploads/
+downloads/
+
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Virtual Environment
+# ==========================================
+venv/
+env/
+ENV/
+.venv/
+
+# ==========================================
+# IDE & Editor
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+.atom/
+.vim/
+
+# ==========================================
+# OS
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# Environment Variables
+# ==========================================
+.env
+.env.local
+.env.*.local
+
+# ==========================================
+# Logs
+# ==========================================
+*.log
+logs/
+*.log.*
+
+# ==========================================
+# Temporary Files
+# ==========================================
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# ==========================================
+# Node (if using npm for frontend)
+# ==========================================
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ==========================================
+# Poetry
+# ==========================================
+poetry.lock
+
+# ==========================================
+# Docker
+# ==========================================
+.dockerignore
+
+# ==========================================
+# Git
+# ==========================================
+.git/
+.gitmodules
+
+# ==========================================
+# Misc
+# ==========================================
+.idea/
+.vscode/
+*.iml
+.gradle
+.gradle/
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.jks
+*.keystore

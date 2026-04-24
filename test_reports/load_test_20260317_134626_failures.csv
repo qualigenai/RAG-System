@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences
+POST,/auth/login,HTTPError('404 Client Error: Not Found for url: /auth/login'),5

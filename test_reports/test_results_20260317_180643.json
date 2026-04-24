@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-03-17T18:06:43.414578",
+  "test_run_id": "20260317_180643",
+  "environment": "http://localhost:8000",
+  "tests": {
+    "unit_tests": {
+      "status": "skipped",
+      "details": {}
+    },
+    "api_tests": {
+      "status": "passed",
+      "details": {
+        "auth_tests": [
+          {
+            "test": "register",
+            "status": "passed"
+          }
+        ],
+        "upload_tests": [],
+        "search_tests": [],
+        "health_check": [
+          {
+            "test": "health",
+            "status": "passed"
+          }
+        ]
+      }
+    },
+    "load_tests": {
+      "status": "warning",
+      "details": {}
+    },
+    "security_tests": {
+      "status": "passed",
+      "details": [
+        {
+          "test": "SQL Injection",
+          "status": "passed"
+        },
+        {
+          "test": "Auth Enforcement",
+          "status": "passed"
+        },
+        {
+          "test": "HTTPS",
+          "status": "warning"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_tests": 4,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 1,
+    "pass_rate": "66.7%"
+  }
+}

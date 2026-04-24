@@ -50,7 +50,7 @@ class DatabaseSeeder:
         for role, user_data in TestData.get_all_test_users().items():
             try:
                 response = requests.post(
-                    f"{self.base_url}/auth/register",
+                    f"{self.base_url}/api/auth/register",
                     json=user_data,
                     timeout=10
                 )
@@ -83,15 +83,15 @@ class DatabaseSeeder:
         
         # Register editor if needed
         requests.post(
-            f"{self.base_url}/auth/register",
+            f"{self.base_url}/api/auth/register",
             json=editor_data,
             timeout=10
         )
         
         # Login to get token
         login_response = requests.post(
-            f"{self.base_url}/auth/login",
-            data={
+            f"{self.base_url}/api/auth/login",
+            json={
                 "email": editor_data["email"],
                 "password": editor_data["password"]
             },
@@ -139,8 +139,8 @@ class DatabaseSeeder:
         editor_data = TestData.get_test_user("editor")
         
         login_response = requests.post(
-            f"{self.base_url}/auth/login",
-            data={
+            f"{self.base_url}/api/auth/login",
+            json={
                 "email": editor_data["email"],
                 "password": editor_data["password"]
             },
@@ -160,7 +160,12 @@ class DatabaseSeeder:
             if stats_response.status_code == 200:
                 stats = stats_response.json()
                 print(f"✅ Documents in system: {stats.get('total_documents', 0)}")
-                print(f"✅ Team members: {len(stats.get('team_members', []))}")
+                team_members = stats.get('team_members', 0)
+                if isinstance(team_members, list):
+                    team_count = len(team_members)
+                else:
+                    team_count = team_members
+                print(f"✅ Team members: {team_count}")
         
         print("\n✓ Verification complete")
     
@@ -232,8 +237,8 @@ def cleanup_test_data(base_url="http://localhost:8000"):
     admin_data = TestData.get_test_user("admin")
     
     login_response = requests.post(
-        f"{base_url}/auth/login",
-        data={
+        f"{base_url}/api/auth/login",
+        json={
             "email": admin_data["email"],
             "password": admin_data["password"]
         },

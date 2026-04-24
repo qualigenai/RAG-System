@@ -324,7 +324,7 @@ class TestRunner:
                 "full_name": "Automation Test"
             }
             
-            response = requests.post(f"{BASE_URL}/auth/register", json=register_data)
+            response = requests.post(f"{BASE_URL}/api/auth/register", json=register_data)
             if response.status_code == 200:
                 self.print_success("User registration passed")
                 test_results["auth_tests"].append({"test": "register", "status": "passed"})
@@ -338,7 +338,7 @@ class TestRunner:
             if token:
                 self.print_info("Testing user login...")
                 login_data = {"email": register_data["email"], "password": TEST_USER_PASSWORD}
-                response = requests.post(f"{BASE_URL}/auth/login", data=login_data)
+                response = requests.post(f"{BASE_URL}/api/auth/login", data=login_data)
                 if response.status_code == 200:
                     self.print_success("User login passed")
                     test_results["auth_tests"].append({"test": "login", "status": "passed"})
@@ -633,58 +633,58 @@ class TestRunner:
         </html>
         """
         
-        with open(REPORT_FILE, 'w') as f:
+        with open(REPORT_FILE, 'w', encoding='utf-8') as f:
             f.write(html)
-        
+
         return REPORT_FILE
-    
+
     def save_json_report(self):
         """Save results as JSON"""
         json_file = f"{REPORTS_DIR}/test_results_{TIMESTAMP}.json"
-        with open(json_file, 'w') as f:
+        with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(self.results, f, indent=2)
         return json_file
-    
+
     # ============= MAIN EXECUTION =============
-    
+
     def run_all_tests(self):
         """Run all tests in sequence"""
         self.print_header("RAG SYSTEM v1.5 - AUTOMATED TEST SUITE")
         self.print_info(f"Environment: {BASE_URL}")
         self.print_info(f"Report ID: {TIMESTAMP}\n")
-        
+
         # Preflight checks
         if not self.check_backend_running():
             self.print_error("ABORT: Backend not running!")
             return False
-        
+
         # Run tests
         all_passed = True
-        
+
         # Phase 1: Unit Tests
         if not self.run_unit_tests():
             all_passed = False
-        
+
         # Phase 2: API Tests
         if not self.run_api_tests_manual():  # Use manual if Newman fails
             all_passed = False
-        
+
         # Phase 3: Load Tests
         if not self.run_load_tests():
             all_passed = False
-        
+
         # Phase 4: Security Tests
         if not self.run_security_tests():
             all_passed = False
-        
+
         # Generate reports
         self.print_header("GENERATING REPORTS")
         html_report = self.generate_html_report()
         json_report = self.save_json_report()
-        
+
         self.print_success(f"HTML Report: {html_report}")
         self.print_success(f"JSON Report: {json_report}")
-        
+
         # Print summary
         self.print_header("TEST SUMMARY")
         summary = self.results["summary"]
@@ -693,7 +693,7 @@ class TestRunner:
         if summary['failed'] > 0:
             self.print_error(f"Failed: {summary['failed']}")
         self.print_info(f"Pass Rate: {summary['pass_rate']}")
-        
+
         # Final status
         self.print_header("FINAL RESULT")
         if summary["failed"] == 0:

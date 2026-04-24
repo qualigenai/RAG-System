@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QualiGenAI — RAG System v1.5</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; width: 100%; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0A1628;
+  color: #E2E8F0;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1E3A5F; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #2A4E7F; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+.fade-in { animation: fadeIn 0.35s ease forwards; }
+
+/* Main Layout */
+.container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  height: 100%;
+  background: #080F1E;
+  border-right: 1px solid #1E3A5F;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid #1E3A5F;
+}
+
+.brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg,#FF6B35,#E85A25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-right: 8px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.brand-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #E2E8F0;
+  letter-spacing: -0.01em;
+}
+
+.brand-version {
+  font-size: 11px;
+  color: #64748B;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 2px solid transparent;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: #E2E8F0;
+  background: #0F1E35;
+}
+
+.nav-item.active {
+  color: #E2E8F0;
+  background: #0F1E35;
+  border-right-color: #FF6B35;
+  font-weight: 500;
+}
+
+/* Main Content */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Top Bar */
+.topbar {
+  height: 80px;
+  border-bottom: 1px solid #1E3A5F;
+  background: #080F1E;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.search-container {
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #334155;
+  pointer-events: none;
+  font-size: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 11px 14px 11px 42px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #1E3A5F;
+  background: #0A1628;
+  color: #E2E8F0;
+  outline: none;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.search-input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.search-input::placeholder { color: #334155; }
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: #FF6B35;
+  border: none;
+  border-radius: 9px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #E85A25;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notif-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #0F1E35;
+  border: 1px solid #1E3A5F;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748B;
+  transition: all 0.15s;
+  font-size: 16px;
+}
+
+.notif-btn:hover {
+  color: #E2E8F0;
+  border-color: #2A4E7F;
+}
+
+.notif-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FF6B35;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  animation: pulse 1.8s ease infinite;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg,#FF6B35,#E85A25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.content-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Results Panel */
+.results-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.results-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #E2E8F0;
+  margin-bottom: 2px;
+}
+
+.results-subtitle {
+  font-size: 12px;
+  color: #64748B;
+}
+
+.quick-queries {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid #1E3A5F;
+  border-radius: 8px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+}
+
+.btn-ghost:hover {
+  border-color: #2A4E7F;
+  color: #E2E8F0;
+  background: #0F1E35;
+}
+
+.loading-indicator {
+  background: #0F1E35;
+  border: 1px solid #1E3A5F;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s;
+  margin-bottom: 14px;
+  padding: 22px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #1E3A5F;
+  border-top-color: #3B82F6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner-wrapper {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.error-message {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  color: #FCA5A5;
+  font-size: 13px;
+}
+
+/* Query Results */
+.query-result-card {
+  background: #0F1E35;
+  border: 1px solid #1E3A5F;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s;
+  margin-bottom: 14px;
+  animation: fadeIn 0.35s ease forwards;
+}
+
+.query-result-card:hover {
+  border-color: #2A4E7F;
+}
+
+.result-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #152542;
+}
+
+.result-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255,107,53,0.1);
+  border: 1px solid rgba(255,107,53,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 12px;
+}
+
+.result-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-question {
+  font-size: 14px;
+  font-weight: 600;
+  color: #E2E8F0;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  word-wrap: break-word;
+}
+
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+.meta-time { color: #64748B; }
+.meta-latency { color: #06B6D4; font-family: 'JetBrains Mono', monospace; }
+.meta-dot { width: 3px; height: 3px; border-radius: 50%; background: #334155; flex-shrink: 0; }
+
+.method-badge {
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(6,182,212,0.15);
+  border: 1px solid rgba(6,182,212,0.3);
+  border-radius: 100px;
+  padding: 1px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #06B6D4;
+}
+
+.chevron {
+  color: #334155;
+  transition: transform 0.2s;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.result-body {
+  padding: 18px 20px;
+}
+
+.result-answer {
+  font-size: 13.5px;
+  color: #CBD5E1;
+  line-height: 1.75;
+  margin-bottom: 18px;
+  word-wrap: break-word;
+}
+
+.sources-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sources-divider {
+  flex: 1;
+  height: 1px;
+  background: #152542;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.source-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #3B82F6;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.doc-pill:hover {
+  background: rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.4);
+}
+
+.source-page {
+  font-size: 11px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conf-bar-wrap {
+  height: 4px;
+  background: #152542;
+  border-radius: 100px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.conf-bar {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 1s cubic-bezier(.22,1,.36,1);
+}
+
+.conf-value {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Right Panel */
+.right-panel {
+  width: 300px;
+  flex-shrink: 0;
+  border-left: 1px solid #1E3A5F;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px 16px;
+}
+
+.right-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+
+/* Upload Zone */
+.upload-zone {
+  border: 1px dashed #1E3A5F;
+  border-radius: 12px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s;
+  cursor: pointer;
+  background: rgba(59,130,246,0.02);
+}
+
+.upload-zone.drag-over {
+  border-color: #3B82F6;
+  background: rgba(59,130,246,0.06);
+}
+
+.upload-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.upload-text {
+  text-align: center;
+}
+
+.upload-main {
+  font-size: 13px;
+  font-weight: 500;
+  color: #94A3B8;
+  margin-bottom: 3px;
+}
+
+.upload-sub {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 100px;
+  font-size: 12px;
+  color: #3B82F6;
+  font-weight: 500;
+}
+
+/* Recent Docs */
+.recent-doc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid #152542;
+  background: rgba(21,37,66,0.4);
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.25s;
+}
+
+.recent-doc:last-child {
+  margin-bottom: 0;
+}
+
+.recent-doc:hover {
+  border-color: #2A4E7F;
+  box-shadow: 0 0 30px rgba(59,130,246,0.12);
+  transform: translateY(-2px);
+}
+
+.doc-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(59,130,246,0.18);
+  border: 1px solid rgba(59,130,246,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #E2E8F0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.doc-meta {
+  font-size: 11px;
+  color: #64748B;
+}
+
+.doc-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22C55E;
+  animation: pulse 2s ease infinite;
+}
+
+.status-text {
+  font-size: 10px;
+  color: #22C55E;
+  font-weight: 600;
+}
+
+/* Index Health */
+.health-box {
+  margin-top: 20px;
+  padding: 14px;
+  background: rgba(6,182,212,0.05);
+  border: 1px solid rgba(6,182,212,0.12);
+  border-radius: 12px;
+}
+
+.health-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 11px;
+}
+
+.health-row:last-child {
+  border-bottom: none;
+}
+
+.health-label {
+  color: #64748B;
+}
+
+.health-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: #94A3B8;
+}
+
+/* Stats Strip */
+.stats-strip {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px 14px 0;
+  border-top: 1px solid #1E3A5F;
+  background: #080F1E;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.stat-card {
+  background: #0F1E35;
+  border: 1px solid #1E3A5F;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 200px;
+  transition: all 0.25s;
+  cursor: default;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'Syne', sans-serif;
+  color: #3B82F6;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  margin-bottom: 1px;
+}
+
+.stat-sub {
+  font-size: 10px;
+  color: #64748B;
+}
+
+/* File Input (Hidden) */
+input[type="file"] {
+  display: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748B;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #E2E8F0;
+  margin-bottom: 8px;
+}
+
+.empty-state-text {
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div>
+        <span class="brand-icon">⚡</span><span class="brand-text">QualiGenAI</span>
+      </div>
+      <div class="brand-version">RAG System v1.5</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="switchTab('search')">🔍 Search</button>
+      <button class="nav-item" onclick="switchTab('documents')">📄 Documents</button>
+      <button class="nav-item" onclick="switchTab('analytics')">📊 Analytics</button>
+      <button class="nav-item" onclick="switchTab('apikeys')">🔑 API Keys</button>
+      <button class="nav-item" onclick="switchTab('settings')">⚙️ Settings</button>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="search-container">
+        <div class="search-icon">🔍</div>
+        <input
+          type="text"
+          class="search-input"
+          id="queryInput"
+          placeholder="Ask your documents anything…"
+          onkeypress="if(event.key==='Enter') handleSearch()"
+        />
+      </div>
+      <button class="btn-primary" id="searchBtn" onclick="handleSearch()">
+        <span>🔍</span><span>Search</span>
+      </button>
+      <button class="notif-btn">
+        🔔
+        <div class="notif-dot"></div>
+      </button>
+      <div class="avatar">RS</div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Results Panel -->
+      <div class="results-panel">
+        <div class="results-header">
+          <div>
+            <div class="results-title">Recent Queries</div>
+            <div class="results-subtitle"><span id="resultCount">0</span> results — sorted by recency</div>
+          </div>
+        </div>
+
+        <div id="errorContainer"></div>
+        <div id="loadingIndicator" style="display: none;">
+          <div class="loading-indicator">
+            <div class="spinner-wrapper">
+              <div class="spinner"></div>
+            </div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: #94A3B8; margin-bottom: 3px;">Processing query…</div>
+              <div style="font-size: 11px; color: #64748B;">Searching across indexed documents with hybrid retrieval</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="resultsContainer"></div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <!-- Upload Section -->
+        <div class="right-section">
+          <div class="section-title">Index Documents</div>
+          <div class="upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">
+              <div class="upload-main">Drop files to index</div>
+              <div class="upload-sub">PDF, DOCX, TXT — up to 100 MB</div>
+            </div>
+            <div class="upload-btn">➕ Choose file</div>
+          </div>
+          <input type="file" id="fileInput" onchange="handleFileSelect(event)" accept=".pdf,.txt,.docx,.csv" />
+        </div>
+
+        <!-- Recent Docs Section -->
+        <div class="right-section">
+          <div class="section-title">Recently Indexed</div>
+          <div id="recentDocsList"></div>
+        </div>
+
+        <!-- Index Health -->
+        <div class="health-box">
+          <div class="section-title">Index Health</div>
+          <div class="health-row">
+            <span class="health-label">API Status</span>
+            <span class="health-value" id="apiStatus" style="color: #EF4444;">Checking...</span>
+          </div>
+          <div class="health-row">
+            <span class="health-label">Backend URL</span>
+            <span class="health-value">localhost:8000</span>
+          </div>
+          <div class="health-row">
+            <span class="health-label">Frontend URL</span>
+            <span class="health-value">localhost:3000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon">📄</div>
+        <div>
+          <div class="stat-value" style="color: #06B6D4;">0</div>
+          <div class="stat-label">Documents Indexed</div>
+          <div class="stat-sub">Ready to query</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔍</div>
+        <div>
+          <div class="stat-value" style="color: #FF6B35;" id="queryCount">0</div>
+          <div class="stat-label">Queries Made</div>
+          <div class="stat-sub">This session</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div>
+          <div class="stat-value" style="color: #3B82F6;" id="avgLatency">-</div>
+          <div class="stat-label">Avg Latency</div>
+          <div class="stat-sub">Response time</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛡️</div>
+        <div>
+          <div class="stat-value" style="color: #22C55E;" id="avgConfidence">-</div>
+          <div class="stat-label">Avg Confidence</div>
+          <div class="stat-sub">Retrieved sources</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'http://localhost:3000';
+let currentResults = [];
+let isLoading = false;
+let queryCount = 0;
+let latencies = [];
+let confidences = [];
+
+// Check API status on load
+window.addEventListener('load', checkAPIStatus);
+
+async function checkAPIStatus() {
+  try {
+    const response = await fetch(`${API_URL}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'test' })
+    });
+    document.getElementById('apiStatus').textContent = '✅ Connected';
+    document.getElementById('apiStatus').style.color = '#22C55E';
+  } catch (error) {
+    document.getElementById('apiStatus').textContent = '❌ Offline';
+    document.getElementById('apiStatus').style.color = '#EF4444';
+    console.error('API status check failed:', error);
+  }
+}
+
+function renderResults(results) {
+  const container = document.getElementById('resultsContainer');
+
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <div class="empty-state-title">No results yet</div>
+        <div class="empty-state-text">Try searching for something to get started</div>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = results.map(r => renderResultCard(r)).join('');
+}
+
+function renderResultCard(result) {
+  // Determine confidence color based on first source
+  let confColor = '#64748B';
+  if (result.sources && result.sources.length > 0) {
+    const conf = result.sources[0].confidence || 0;
+    if (conf >= 90) confColor = '#22C55E';
+    else if (conf >= 75) confColor = '#06B6D4';
+    else if (conf >= 60) confColor = '#F59E0B';
+    else confColor = '#EF4444';
+  }
+
+  return `
+    <div class="query-result-card fade-in">
+      <div class="result-header" onclick="toggleResult(this)">
+        <div class="result-icon">🔍</div>
+        <div class="result-info">
+          <div class="result-question">${escapeHtml(result.question)}</div>
+          <div class="result-meta">
+            <span class="meta-time">just now</span>
+            <div class="meta-dot"></div>
+            <span class="meta-latency">${result.latency || '0ms'}</span>
+          </div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="result-body" style="display: none;">
+        <div class="result-answer">${escapeHtml(result.answer || 'No answer returned')}</div>
+        ${result.sources && result.sources.length > 0 ? `
+          <div class="sources-label">
+            <span>Sources</span>
+            <div class="sources-divider"></div>
+          </div>
+          <div class="sources-list">
+            ${result.sources.map(src => {
+              const conf = src.confidence || 0;
+              let color = '#64748B';
+              if (conf >= 90) color = '#22C55E';
+              else if (conf >= 75) color = '#06B6D4';
+              else if (conf >= 60) color = '#F59E0B';
+              else color = '#EF4444';
+              return `
+                <div class="source-item">
+                  <div class="source-name">
+                    <span class="doc-pill">📄 ${escapeHtml(src.name || 'Unknown')}</span>
+                    <span class="source-page">${escapeHtml(src.page || 'N/A')}</span>
+                  </div>
+                  <div style="width: 140px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div class="conf-bar-wrap" style="flex: 1;">
+                        <div class="conf-bar" style="width: 0%; background: ${color};" data-width="${conf}%"></div>
+                      </div>
+                      <span class="conf-value" style="color: ${color};">${conf}%</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function toggleResult(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const isOpen = body.style.display !== 'none';
+
+  body.style.display = isOpen ? 'none' : 'block';
+  chevron.classList.toggle('open', !isOpen);
+
+  // Animate confidence bars
+  if (!isOpen) {
+    setTimeout(() => {
+      body.querySelectorAll('.conf-bar').forEach(bar => {
+        const width = bar.getAttribute('data-width');
+        bar.style.width = width;
+      });
+    }, 50);
+  }
+}
+
+async function handleSearch() {
+  const query = document.getElementById('queryInput').value.trim();
+  if (!query) return;
+
+  isLoading = true;
+  document.getElementById('loadingIndicator').style.display = 'block';
+  document.getElementById('errorContainer').innerHTML = '';
+  document.getElementById('searchBtn').disabled = true;
+
+  const startTime = Date.now();
+
+  try {
+    const response = await fetch(`${API_URL}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: query })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const latency = Date.now() - startTime;
+
+    // Ensure data is an array
+    const results = Array.isArray(data) ? data : [data];
+
+    const newResult = {
+      question: query,
+      answer: results[0]?.answer || results[0]?.content || 'No answer returned',
+      sources: (results[0]?.sources || []).map(s => ({
+        name: s.name || s.source || 'Unknown',
+        page: s.page || s.metadata?.page || 'N/A',
+        confidence: Math.round((s.confidence || s.score || 0) * 100)
+      })),
+      latency: `${latency}ms`
+    };
+
+    currentResults = [newResult, ...currentResults.slice(0, 9)];
+    queryCount++;
+    latencies.push(latency);
+
+    // Calculate average latency
+    const avgLat = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length);
+    document.getElementById('avgLatency').textContent = avgLat + 'ms';
+    document.getElementById('queryCount').textContent = queryCount;
+
+    // Calculate average confidence
+    const allConfs = currentResults
+      .flatMap(r => r.sources || [])
+      .map(s => s.confidence || 0)
+      .filter(c => c > 0);
+
+    if (allConfs.length > 0) {
+      const avgConf = Math.round(allConfs.reduce((a, b) => a + b, 0) / allConfs.length);
+      document.getElementById('avgConfidence').textContent = avgConf + '%';
+    }
+
+    document.getElementById('resultCount').textContent = currentResults.length;
+    renderResults(currentResults);
+
+  } catch (error) {
+    console.error('Search error:', error);
+    document.getElementById('errorContainer').innerHTML = `
+      <div class="error-message">
+        ⚠️ Error: ${error.message}. Make sure FastAPI backend is running on http://localhost:8000
+      </div>
+    `;
+  } finally {
+    isLoading = false;
+    document.getElementById('loadingIndicator').style.display = 'none';
+    document.getElementById('searchBtn').disabled = false;
+    document.getElementById('queryInput').value = '';
+  }
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) handleFileSelect({ target: { files } });
+}
+
+async function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(`${API_URL}/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    alert(`✅ File uploaded successfully!\n\nChunks created: ${result.chunks || 'N/A'}`);
+  } catch (error) {
+    alert(`❌ Upload failed: ${error.message}`);
+  }
+
+  e.target.value = '';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>
