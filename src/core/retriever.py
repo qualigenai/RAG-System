@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class HybridRetriever:
     """Combines vector search and BM25 for hybrid retrieval"""
     
-    def __init__(self, embedding_dim: int = 384):
+    def __init__(self, embedding_dim: int = 1536):
         self.embedder = EmbeddingManager()
         self.vector_db = VectorDBManager(embedding_dim=embedding_dim)
         self.bm25 = BM25Retriever()
