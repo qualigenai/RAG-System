@@ -975,7 +975,7 @@ input[type="file"] {
 </div>
 
 <script>
-const API_URL = 'http://rag-system-frontend-53uy.onrender.com';
+const API_URL = 'https://rag-system-frontend-53uy.onrender.com';
 let currentResults = [];
 let isLoading = false;
 let queryCount = 0;
@@ -1173,7 +1173,7 @@ async function handleSearch() {
     console.error('Search error:', error);
     document.getElementById('errorContainer').innerHTML = `
       <div class="error-message">
-        ⚠️ Error: ${error.message}. Make sure FastAPI backend is running on http://rag-system-api-s09i.onrender.com
+        ⚠️ Error: ${error.message}. Make sure FastAPI backend is running on https://rag-system-api-s09i.onrender.com
       </div>
     `;
   } finally {
@@ -1230,5 +1230,6 @@ function switchTab(tab) {
 
 </body>
 </html>
+
 
 
