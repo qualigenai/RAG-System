@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://rag-system-api-s09i.onrender.com';
 
 // ─── MIDDLEWARE ─────────────────────────────────────────
 
@@ -215,3 +215,4 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
+

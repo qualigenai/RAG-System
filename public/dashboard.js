@@ -199,7 +199,7 @@ setTimeout(function() {
             e('div', { style: { background: '#0F1E35', border: '1px solid #1E3A5F', borderRadius: '8px', padding: '16px' } },
               e('div', { style: { marginBottom: '16px' } },
                 e('div', { style: { fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' } }, 'API Configuration'),
-                e('div', { style: { fontSize: '12px', color: '#94A3B8' } }, 'API URL: http://localhost:8000')
+                e('div', { style: { fontSize: '12px', color: '#94A3B8' } }, 'API URL: https://rag-system-api-s09i.onrender.com')
               ),
               e('div', {
                 e('div', { style: { fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' } }, 'Status'),
@@ -216,3 +216,5 @@ setTimeout(function() {
   ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 
 }, 1000); // Wait for all scripts to load
+
+
