@@ -926,7 +926,7 @@ input[type="file"] {
           </div>
           <div class="health-row">
             <span class="health-label">Backend URL</span>
-            <span class="health-value">rag-system-api-s09i.onrender.com</span>
+            <span class="health-value">rag-system-api-v2.onrender.com</span>
           </div>
           <div class="health-row">
             <span class="health-label">Frontend URL</span>
@@ -1173,7 +1173,7 @@ async function handleSearch() {
     console.error('Search error:', error);
     document.getElementById('errorContainer').innerHTML = `
       <div class="error-message">
-        ⚠️ Error: ${error.message}. Make sure FastAPI backend is running on https://rag-system-api-s09i.onrender.com
+        ⚠️ Error: ${error.message}. Make sure FastAPI backend is running on https://rag-system-api-v2.onrender.com
       </div>
     `;
   } finally {
@@ -1230,6 +1230,7 @@ function switchTab(tab) {
 
 </body>
 </html>
+
 
 
 
