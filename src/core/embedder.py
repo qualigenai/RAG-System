@@ -7,8 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
-
+HF_API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
 
 class EmbeddingManager:
     """
