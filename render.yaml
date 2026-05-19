@@ -1,1 +1,13 @@
-pip install -r requirements.txt  →  pip install -r requirements-prod.txt
+﻿services:
+  - type: web
+    name: rag-system-api-v2
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn src.api.main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
