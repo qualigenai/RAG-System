@@ -2,5 +2,5 @@
   - type: web
     name: rag-system-api-v2
     runtime: python
-    buildCommand: pip install -r requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+    buildCommand: pip install -r requirements.txt
     startCommand: python start.py
