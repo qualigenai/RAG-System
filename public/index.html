@@ -975,23 +975,75 @@ input[type="file"] {
 </div>
 
 <script>
-const API_URL = 'https://rag-system-frontend-53uy.onrender.com';
+// Use same frontend server/proxy origin.
+// Browser UI → server.js proxy → rag-system-api-v2 backend
+const API_URL = window.location.origin;
+
 let currentResults = [];
 let isLoading = false;
 let queryCount = 0;
 let latencies = [];
 let confidences = [];
 
+function getStoredToken() {
+  return (
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('jwt') ||
+    localStorage.getItem('authToken') ||
+    ''
+  );
+}
+
+function saveToken(token) {
+  if (token && token.trim()) {
+    localStorage.setItem('access_token', token.trim());
+  }
+}
+
+function ensureAuthToken() {
+  let token = getStoredToken();
+
+  if (!token) {
+    token = prompt(
+      'Paste your JWT access token from backend login.\n\nYou can generate it from /docs login endpoint, then paste only the token value here.'
+    );
+
+    if (token) {
+      token = token.replace(/^Bearer\s+/i, '').trim();
+      saveToken(token);
+    }
+  }
+
+  return token;
+}
+
+function getAuthHeaders(extraHeaders = {}) {
+  const token = ensureAuthToken();
+
+  if (!token) {
+    throw new Error('Login token missing. Please login/generate JWT token and try again.');
+  }
+
+  return {
+    ...extraHeaders,
+    Authorization: `Bearer ${token}`
+  };
+}
+
 // Check API status on load
 window.addEventListener('load', checkAPIStatus);
 
 async function checkAPIStatus() {
   try {
-    const response = await fetch(`${API_URL}/query`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'test' })
+    const response = await fetch(`${API_URL}/health`, {
+      method: 'GET'
     });
+
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.status}`);
+    }
+
     document.getElementById('apiStatus').textContent = '✅ Connected';
     document.getElementById('apiStatus').style.color = '#22C55E';
   } catch (error) {
@@ -1121,8 +1173,10 @@ async function handleSearch() {
   try {
     const response = await fetch(`${API_URL}/query`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: query })
+      headers: getAuthHeaders({
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ query_text: query })
     });
 
     if (!response.ok) {
@@ -1210,6 +1264,7 @@ async function handleFileSelect(e) {
   try {
     const response = await fetch(`${API_URL}/upload`, {
       method: 'POST',
+      headers: getAuthHeaders(),
       body: formData
     });
 
