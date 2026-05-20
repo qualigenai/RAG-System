@@ -1730,9 +1730,24 @@ async function handleFileSelect(e) {
       throw new Error(extractErrorMessage(responseText, `Upload failed: ${response.status}`));
     }
 
-    const result = JSON.parse(responseText);
-    alert(`✅ File uploaded successfully!\n\nChunks created: ${result.chunks || result.chunks_created || 'N/A'}`);
-    addRecentDoc(file.name, result.chunks || result.chunks_created || 'N/A');
+   const result = JSON.parse(responseText);
+console.log("UPLOAD RESPONSE:", result);
+
+const chunksCreated =
+  result.chunks ||
+  result.chunks_created ||
+  result.chunk_count ||
+  result.total_chunks ||
+  result.num_chunks ||
+  result.indexed_chunks ||
+  result.document?.chunks ||
+  result.document?.chunks_created ||
+  result.metadata?.chunks ||
+  result.metadata?.chunks_created ||
+  'N/A';
+
+alert(`✅ File uploaded successfully!\n\nChunks created: ${chunksCreated}`);
+addRecentDoc(file.name, chunksCreated);
   } catch (error) {
     alert(`❌ Upload failed: ${error.message}`);
   }
