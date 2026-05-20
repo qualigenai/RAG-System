@@ -1462,8 +1462,7 @@ function extractErrorMessage(text, fallback) {
           const msg = item.msg || item.message || JSON.stringify(item);
           return loc ? `${loc}: ${msg}` : msg;
         })
-        .join('
-');
+        .join('\n');
     }
 
     if (parsed.detail && typeof parsed.detail === 'object') {
@@ -1835,7 +1834,3 @@ function switchTab(tab) {
 
 </body>
 </html>
-
-
-
-
