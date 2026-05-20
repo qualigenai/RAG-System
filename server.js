@@ -222,23 +222,29 @@ app.all('/api/*', async (req, res) => {
     const fullUrl = `${API_BASE_URL}/api${endpoint}`;
 
     console.log(`🔗 Proxying ${req.method} ${endpoint}`);
+    console.log('📦 API request body:', JSON.stringify(req.body));
 
     const headers = {
       'Content-Type': 'application/json',
-      ...Object.fromEntries(
-        Object.entries(req.headers).filter(
-          ([key]) => !['host', 'connection', 'content-length'].includes(key.toLowerCase())
-        )
-      )
+      'Accept': 'application/json'
     };
+
+    if (req.headers.authorization) {
+      headers.Authorization = req.headers.authorization;
+    }
 
     const response = await fetch(fullUrl, {
       method: req.method,
       headers,
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
+      body: req.method !== 'GET' ? JSON.stringify(req.body || {}) : undefined
     });
 
     const responseText = await response.text();
+
+    if (!response.ok) {
+      console.error(`❌ API proxy backend error ${response.status}: ${responseText}`);
+      return res.status(response.status).send(responseText);
+    }
 
     try {
       const data = JSON.parse(responseText);
@@ -246,6 +252,7 @@ app.all('/api/*', async (req, res) => {
     } catch {
       return res.status(response.status).send(responseText);
     }
+
   } catch (error) {
     console.error('❌ API proxy error:', error.message);
     return res.status(500).json({

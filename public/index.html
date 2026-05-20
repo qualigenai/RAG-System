@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QualiGenAI — RAG System v1.5</title>
+<title>QualiGenAI — RAG System v2.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1025,7 +1025,7 @@ input[type="file"] {
       <div>
         <span class="brand-icon">⚡</span><span class="brand-text">QualiGenAI</span>
       </div>
-      <div class="brand-version">RAG System v1.5</div>
+      <div class="brand-version">RAG System v2.0</div>
     </div>
     <nav class="sidebar-nav">
       <button class="nav-item active" onclick="switchTab('search')">🔍 Search</button>
@@ -1231,7 +1231,7 @@ window.addEventListener('load', () => {
 
 async function checkAPIStatus() {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const response = await fetch('/health');
     if (!response.ok) throw new Error(`Health check failed: ${response.status}`);
     document.getElementById('apiStatus').textContent = '✅ Connected';
     document.getElementById('apiStatus').style.color = '#22C55E';
@@ -1352,18 +1352,28 @@ async function submitAuth() {
 
   try {
     if (authMode === 'register') {
-      const registerResponse = await fetch(`${API_URL}/api/auth/register`, {
+      const registerPayload = {
+        email: email,
+        username: username,
+        password: password,
+        full_name: fullName
+      };
+
+      console.log('REGISTER PAYLOAD:', registerPayload);
+
+      const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          username,
-          password,
-          full_name: fullName
-        })
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(registerPayload)
       });
 
       const registerText = await registerResponse.text();
+      console.log('REGISTER STATUS:', registerResponse.status);
+      console.log('REGISTER RESPONSE:', registerText);
+
       if (!registerResponse.ok) {
         throw new Error(extractErrorMessage(registerText, 'Registration failed'));
       }
@@ -1372,19 +1382,44 @@ async function submitAuth() {
       message.className = 'auth-message success';
     }
 
-    const loginResponse = await fetch(`${API_URL}/api/auth/login`, {
+    const loginPayload = {
+      email: email,
+      password: password
+    };
+
+    console.log('LOGIN PAYLOAD:', loginPayload);
+
+    const loginResponse = await fetch('/api/auth/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(loginPayload)
     });
 
     const loginText = await loginResponse.text();
+    console.log('LOGIN STATUS:', loginResponse.status);
+    console.log('LOGIN RESPONSE:', loginText);
+
     if (!loginResponse.ok) {
       throw new Error(extractErrorMessage(loginText, 'Login failed'));
     }
 
-    const loginData = JSON.parse(loginText);
-    const token = loginData.access_token || loginData.token || loginData.accessToken;
+    let loginData = {};
+    try {
+      loginData = JSON.parse(loginText);
+    } catch {
+      throw new Error('Login response was not valid JSON.');
+    }
+
+    const token =
+      loginData.access_token ||
+      loginData.token ||
+      loginData.accessToken ||
+      loginData.jwt ||
+      loginData.data?.access_token ||
+      loginData.data?.token;
 
     if (!token) {
       throw new Error('Login succeeded but access token was not found in response.');
@@ -1392,11 +1427,13 @@ async function submitAuth() {
 
     setToken(token, email);
     updateAuthUI();
+
     message.textContent = 'Login successful.';
     message.className = 'auth-message success';
+
     setTimeout(closeAuthModal, 500);
   } catch (error) {
-    console.error('Auth error:', error);
+    console.error('AUTH ERROR:', error);
     message.textContent = error.message;
     message.className = 'auth-message error';
   } finally {
@@ -1405,9 +1442,38 @@ async function submitAuth() {
 }
 
 function extractErrorMessage(text, fallback) {
+  if (!text) return fallback;
+
   try {
     const parsed = JSON.parse(text);
-    return parsed.detail || parsed.message || parsed.error || fallback;
+
+    if (typeof parsed === 'string') {
+      return parsed;
+    }
+
+    if (typeof parsed.detail === 'string') {
+      return parsed.detail;
+    }
+
+    if (Array.isArray(parsed.detail)) {
+      return parsed.detail
+        .map(item => {
+          const loc = Array.isArray(item.loc) ? item.loc.join('.') : '';
+          const msg = item.msg || item.message || JSON.stringify(item);
+          return loc ? `${loc}: ${msg}` : msg;
+        })
+        .join('
+');
+    }
+
+    if (parsed.detail && typeof parsed.detail === 'object') {
+      return JSON.stringify(parsed.detail, null, 2);
+    }
+
+    if (parsed.message) return parsed.message;
+    if (parsed.error) return parsed.error;
+
+    return JSON.stringify(parsed, null, 2);
   } catch {
     return text || fallback;
   }
@@ -1544,7 +1610,7 @@ async function handleSearch() {
   const startTime = Date.now();
 
   try {
-    const response = await fetch(`${API_URL}/query`, {
+    const response = await fetch('/query', {
       method: 'POST',
       headers: getAuthHeaders(true),
       body: JSON.stringify({ query_text: query })
@@ -1637,7 +1703,7 @@ async function handleFileSelect(e) {
   formData.append('file', file);
 
   try {
-    const response = await fetch(`${API_URL}/upload`, {
+    const response = await fetch('/upload', {
       method: 'POST',
       headers: getAuthHeaders(false),
       body: formData
