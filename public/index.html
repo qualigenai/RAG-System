@@ -1641,22 +1641,38 @@ async function handleSearch() {
     queryCount++;
     latencies.push(latency);
 
-    const avgLat = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length);
-    document.getElementById('avgLatency').textContent = avgLat + 'ms';
-    document.getElementById('queryCount').textContent = queryCount;
+const avgLat = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length);
 
-    const allConfs = currentResults
-      .flatMap(r => r.sources || [])
-      .map(s => s.confidence || 0)
-      .filter(c => c > 0);
+const avgLatencyEl = document.getElementById('avgLatency');
+if (avgLatencyEl) {
+  avgLatencyEl.textContent = avgLat + 'ms';
+}
 
-    if (allConfs.length > 0) {
-      const avgConf = Math.round(allConfs.reduce((a, b) => a + b, 0) / allConfs.length);
-      document.getElementById('avgConfidence').textContent = avgConf + '%';
-    }
+const queryCountEl = document.getElementById('queryCount');
+if (queryCountEl) {
+  queryCountEl.textContent = queryCount;
+}
 
-    document.getElementById('resultCount').textContent = currentResults.length;
-    renderResults(currentResults);
+const allConfs = currentResults
+  .flatMap(r => r.sources || [])
+  .map(s => s.confidence || 0)
+  .filter(c => c > 0);
+
+if (allConfs.length > 0) {
+  const avgConf = Math.round(allConfs.reduce((a, b) => a + b, 0) / allConfs.length);
+
+  const avgConfidenceEl = document.getElementById('avgConfidence');
+  if (avgConfidenceEl) {
+    avgConfidenceEl.textContent = avgConf + '%';
+  }
+}
+
+const resultCountEl = document.getElementById('resultCount');
+if (resultCountEl) {
+  resultCountEl.textContent = currentResults.length;
+}
+
+renderResults(currentResults);
 
   } catch (error) {
     console.error('Search error:', error);
