@@ -1,0 +1,36 @@
+[6a0ea9fb.24fcc3-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=39334
+[6a0ea9fb.24fcc4-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=39336
+[6a0ea9fc.24fcc5-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=33848
+[6a0ea9fc.24fcc5-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0ea9fc.24fcc5-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0ea9fc.24fcc5-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.110 user=postgres database=rag_system host=10.31.230.182 port=33848
+[6a0eaa0a.24fcd8-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=60546
+[6a0eaa0a.24fcd9-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=60562
+[6a0eaa0a.24fcda-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=60574
+[6a0eaa0a.24fcda-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0eaa0a.24fcda-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0eaa0a.24fcda-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.098 user=postgres database=rag_system host=10.31.230.182 port=60574
+[6a0eaa37.24fd01-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=44982
+[6a0eaa37.24fd02-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=44998
+[6a0eaa38.24fd03-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=36666
+[6a0eaa38.24fd03-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0eaa38.24fd03-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0eaa38.24fd03-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.120 user=postgres database=rag_system host=10.31.230.182 port=36666
+[6a0eaa46.24fd17-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=35158
+[6a0eaa46.24fd18-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=35168
+[6a0eaa46.24fd19-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=35172
+[6a0eaa46.24fd19-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0eaa46.24fd19-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0eaa46.24fd19-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.099 user=postgres database=rag_system host=10.31.230.182 port=35172
+[6a0eaa73.24fd40-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=42226
+[6a0eaa73.24fd41-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=42236
+[6a0eaa74.24fd42-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=39104
+[6a0eaa74.24fd42-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0eaa74.24fd42-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0eaa74.24fd42-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.119 user=postgres database=rag_system host=10.31.230.182 port=39104
+[6a0eaa82.24fd56-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=56266
+[6a0eaa82.24fd57-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=56276
+[6a0eaa82.24fd58-1] user=[unknown],db=[unknown],app=[unknown],client=10.31.230.182,LOG:  connection received: host=10.31.230.182 port=56278
+[6a0eaa82.24fd58-2] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authenticated: identity="postgres" method=md5 (/pgdata/dpg-d7ljbmhkh4rs73fhe8qg-a/pg_hba.conf:88)
+[6a0eaa82.24fd58-3] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  connection authorized: user=postgres database=rag_system SSL enabled (protocol=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384, bits=256)
+[6a0eaa82.24fd58-4] user=postgres,db=rag_system,app=[unknown],client=10.31.230.182,LOG:  disconnection: session time: 0:00:03.098 user=postgres database=rag_system host=10.31.230.182 port=56278

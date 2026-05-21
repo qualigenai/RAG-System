@@ -1,0 +1,37 @@
+
+---
+
+Risk ID: DB-V2-001
+Area: PostgreSQL / Render Database
+Risk: Possible database connection pressure or repeated short-lived DB connections
+Evidence:
+- docs/evidence/render-postgres-v2/render-postgres-logs-2026-05-21.jpg
+- docs/evidence/render-postgres-v2/render-postgres-logs-2026-05-21.txt
+
+Observed Log Pattern:
+- connection received
+- connection authenticated
+- connection authorized
+- SSL enabled using TLSv1.3
+- disconnection after approximately 3 seconds
+
+Current Assessment:
+No fatal database error was observed in the attached logs.
+However, repeated short-lived connections should be monitored to ensure the application is not opening unnecessary DB connections.
+
+Impact:
+Medium
+
+Probability:
+Low to Medium
+
+Mitigation:
+1. Check Render PostgreSQL current connection count.
+2. Compare current connections against max allowed connections.
+3. Ensure the application uses connection pooling if traffic increases.
+4. Monitor storage usage and DB availability.
+5. Add DB health check monitoring in the application.
+
+Current Status:
+Open - Monitoring Required
+
