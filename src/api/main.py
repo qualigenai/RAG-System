@@ -61,7 +61,6 @@ app.include_router(auth_routes.router)
 
 print("✅ FastAPI app initialized successfully!")
 
-
 # ============= HEALTH CHECK =============
 @app.get("/health")
 async def health():
@@ -71,6 +70,63 @@ async def health():
         "version": "1.5",
         "retriever_status": "ready" if retriever else "not_initialized"
     }
+
+
+# ============= INTERNAL: PROMPT VERSION CHECK-IN =============
+import hashlib
+import re
+import requests
+from fastapi import Header
+
+
+async def verify_internal_key(x_internal_key: str = Header(...)):
+    expected = os.getenv("INTERNAL_API_KEY")
+    if not expected or x_internal_key != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing internal API key.")
+
+
+@app.post("/internal/prompt-check", dependencies=[Depends(verify_internal_key)])
+async def internal_prompt_check():
+    """
+    Reads this service's own system_prompt from src/api/llm.py, hashes it,
+    and reports the result to the observability platform's prompt registry.
+    Only this service can see its own source file — that's why this check
+    has to live here rather than being run remotely by Control Hub.
+    """
+    llm_file_path = os.path.join(os.path.dirname(__file__), "llm.py")
+
+    try:
+        with open(llm_file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        match = re.search(r'system_prompt\s*=\s*"""(.*?)"""', content, re.DOTALL)
+        if not match:
+            raise HTTPException(status_code=500, detail="Could not find system_prompt in llm.py")
+
+        prompt_text = match.group(1).strip()
+        prompt_hash = hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()
+
+        observability_url = os.getenv("OBSERVABILITY_API_URL", "http://localhost:8001/api/v1")
+        internal_key = os.getenv("INTERNAL_API_KEY")
+
+        response = requests.post(
+            f"{observability_url}/prompts/check-in",
+            headers={"X-Internal-Key": internal_key},
+            json={
+                "prompt_name": "rag_system_prompt",
+                "prompt_hash": prompt_hash,
+                "prompt_text": prompt_text,
+                "author": "Rambhupal",
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    except requests.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach observability service: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============= DOCUMENT UPLOAD WITH INDEXING =============

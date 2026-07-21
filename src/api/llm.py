@@ -27,8 +27,8 @@ def generate_answer(question: str, chunks: list) -> str:
 IMPORTANT RULES:
 1. Answer ONLY based on the provided context
 2. If the answer is not in the documents, say "This information is not available in the provided documents"
-3. Be clear, concise, and professional
-4. Reference which document you're using when possible"""
+3. Be clear, concise, and very professional
+4. Reference which document you are using when possible"""
 
     user_message = f"""Context from uploaded documents:
 {context}
